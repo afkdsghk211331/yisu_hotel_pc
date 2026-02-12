@@ -12,7 +12,6 @@ import { register } from "../api/user";
 export function RegisterPage() {
   const [role, setRole] = useState<"merchant" | "admin" | null>(null);
   const [name, setname] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,7 +20,6 @@ export function RegisterPage() {
 
   const onRegister = async (userInfo: {
     name: string;
-    phone: string;
     email: string;
     password: string;
     role: "merchant" | "admin";
@@ -43,13 +41,7 @@ export function RegisterPage() {
       return;
     }
 
-    if (
-      !name.trim() ||
-      !phone.trim() ||
-      !email.trim() ||
-      !password.trim() ||
-      !confirmPassword.trim()
-    ) {
+    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
       setError("请填写所有必填字段");
       return;
     }
@@ -70,13 +62,7 @@ export function RegisterPage() {
       return;
     }
 
-    const phoneRegex = /^1[3-9]\d{9}$/;
-    if (!phoneRegex.test(phone)) {
-      setError("请输入有效的手机号");
-      return;
-    }
-
-    onRegister({ name, phone, email, password, role });
+    onRegister({ name, email, password, role });
   };
 
   return (
@@ -170,28 +156,15 @@ export function RegisterPage() {
               {/* 注册表单 */}
               {role && (
                 <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">账号 *</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        placeholder="请输入账号"
-                        value={name}
-                        onChange={(e) => setname(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">手机号 *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="请输入手机号"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">用户名 *</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="请输入用户名"
+                      value={name}
+                      onChange={(e) => setname(e.target.value)}
+                    />
                   </div>
 
                   <div className="space-y-2">
