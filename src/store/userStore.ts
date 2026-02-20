@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface UserInfo {
   id: string;
@@ -11,37 +12,25 @@ interface UserInfo {
 interface UserState {
   token: string | null;
   userInfo: UserInfo | null;
-  setToken: (token: string) => void;
-  setUserInfo: (userInfo: UserInfo) => void;
+  setToken: (token: string | null) => void;
+  setUserInfo: (userInfo: UserInfo | null) => void;
   clearAuth: () => void;
 }
 
-const TOKEN_KEY = "yisu_token";
+export const useUserStore = create<UserState>()(
+  persist(
+    (set) => ({
+      token: null,
+      userInfo: null,
 
-// 从 localStorage 初始化 token
-const getInitialToken = (): string | null => {
-  try {
-    return localStorage.getItem(TOKEN_KEY);
-  } catch {
-    return null;
-  }
-};
+      setToken: (token) => set({ token }),
+      setUserInfo: (userInfo) => set({ userInfo }),
 
-export const useUserStore = create<UserState>((set) => ({
-  token: getInitialToken(),
-  userInfo: null,
-
-  setToken: (token: string) => {
-    localStorage.setItem(TOKEN_KEY, token);
-    set({ token });
-  },
-
-  setUserInfo: (userInfo: UserInfo) => {
-    set({ userInfo });
-  },
-
-  clearAuth: () => {
-    localStorage.removeItem(TOKEN_KEY);
-    set({ token: null, userInfo: null });
-  },
-}));
+      clearAuth: () => set({ token: null, userInfo: null }),
+    }),
+    {
+      name: "yisu_auth", // localStorage key（一个就够了）
+      partialize: (state) => ({ token: state.token, userInfo: state.userInfo }),
+    },
+  ),
+);
