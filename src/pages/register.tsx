@@ -18,20 +18,42 @@ export function RegisterPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const onRegister = async (userInfo: {
     name: string;
     email: string;
     password: string;
     role: "merchant" | "admin";
   }) => {
+    setIsLoading(true);
     try {
-      const response = await register(userInfo);
-      console.log("注册成功:", response);
-    } catch (err) {
+      const response: any = await register(userInfo);
+      
+      // 检查后端返回的 success 字段
+      if (response && response.success === false) {
+        // 后端返回业务失败，提取 msg 显示
+        const errorMessage = response.msg || "注册失败，请稍后再试";
+        setError(errorMessage);
+        return;
+      }
+      
+      // 注册成功，跳转到登录页
+      navigate("/login");
+    } catch (err: any) {
       console.error("注册失败:", err);
-      setError("注册失败，请稍后再试");
+      // 尝试从多个可能的位置提取错误信息
+      const errorMessage = 
+        err?.response?.data?.msg || 
+        err?.response?.data?.message || 
+        err?.message || 
+        "注册失败，请稍后再试";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -62,6 +84,7 @@ export function RegisterPage() {
       return;
     }
 
+    // 确保传递正确的 role（merchant 或 admin）
     onRegister({ name, email, password, role });
   };
 
@@ -202,8 +225,12 @@ export function RegisterPage() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full bg-neutral-800 hover:bg-neutral-900">
-                    注册
+                  <Button
+                    type="submit"
+                    className="w-full bg-neutral-800 hover:bg-neutral-900"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "注册中..." : "注册"}
                   </Button>
                 </>
               )}

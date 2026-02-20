@@ -2,11 +2,24 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { LoginPage } from "../pages/login";
 import { RegisterPage } from "../pages/register";
 import { Navigate } from "react-router-dom";
+import { AuthGuard } from "./AuthGuard";
+
+// 临时首页组件（后续可以替换为实际的首页）
+const HomePage = () => {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-900">易宿酒店管理后台</h1>
+        <p className="mt-4 text-gray-600">欢迎使用商家管理系统</p>
+      </div>
+    </div>
+  );
+};
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/login" replace />,
+    element: <Navigate to="/home" replace />,
   },
   {
     path: "/login",
@@ -16,6 +29,23 @@ const router = createBrowserRouter([
     path: "/register",
     element: <RegisterPage />,
   },
+  {
+    path: "/home",
+    element: (
+      <AuthGuard>
+        <HomePage />
+      </AuthGuard>
+    ),
+  },
+  // 后续可以在这里添加更多需要保护的路由
+  // {
+  //   path: "/dashboard",
+  //   element: (
+  //     <AuthGuard>
+  //       <DashboardPage />
+  //     </AuthGuard>
+  //   ),
+  // },
 ]);
 
 const Routes = () => {
