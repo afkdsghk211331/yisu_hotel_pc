@@ -1,11 +1,14 @@
-import { AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { MerchantHotelResponse } from "@/api/hotel";
 
 export type HotelStatus = MerchantHotelResponse["status"];
 
-const statusConfig: Record<HotelStatus, { label: string; iconBgClass: string; badgeClass: string; icon: any }> = {
+const statusConfig: Record<
+  HotelStatus,
+  { label: string; iconBgClass: string; badgeClass: string; icon: LucideIcon }
+> = {
   published: {
     label: "已发布",
     iconBgClass: "bg-emerald-500",
@@ -46,9 +49,12 @@ export function HotelStatusBadge({ status, className }: HotelStatusBadgeProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <div className={cn("rounded-full p-1 shadow-sm", config.iconBgClass)}>
-        <StatusIcon className="w-4 h-4 text-white" />
+        <StatusIcon className="h-4 w-4 text-white" />
       </div>
-      <Badge variant="outline" className={cn("font-medium px-2 py-0.5 backdrop-blur-sm", config.badgeClass)}>
+      <Badge
+        variant="outline"
+        className={cn("px-2 py-0.5 font-medium backdrop-blur-sm", config.badgeClass)}
+      >
         {config.label}
       </Badge>
     </div>

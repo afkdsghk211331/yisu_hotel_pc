@@ -18,7 +18,7 @@ export default function EditHotelPage() {
   const navigate = useNavigate();
   const { currentHotel, fetchHotelDetail, isLoading, clearCurrentHotel } = useHotelStore();
 
-  const isNew = id === 'new' || window.location.pathname.endsWith('/new');
+  const isNew = id === "new" || window.location.pathname.endsWith("/new");
 
   const defaultFormValues: HotelFormValues = {
     name: "",
@@ -30,12 +30,12 @@ export default function EditHotelPage() {
     tags: [],
     cover_image: "",
     detail_images: [],
-    rooms: []
+    rooms: [],
   };
 
   const form = useForm<HotelFormValues>({
-    resolver: zodResolver(hotelSchema) as any,
-    defaultValues: defaultFormValues
+    resolver: zodResolver(hotelSchema) as never,
+    defaultValues: defaultFormValues,
   });
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function EditHotelPage() {
         detail_images: data.detail_images,
         open_date: data.open_date,
         tags: data.tags,
-        rooms: data.rooms?.map(room => ({
+        rooms: data.rooms?.map((room) => ({
           ...room,
           id: room.id || undefined, // undefined prevents sending dirty temp ids to api for creation
         })),
@@ -86,8 +86,9 @@ export default function EditHotelPage() {
         toast.success("更新成功");
       }
       navigate("/merchant/hotels");
-    } catch (error: any) {
-      toast.error((isNew ? "创建失败: " : "更新失败: ") + (error.message || "请求服务器出错"));
+    } catch (error) {
+      const err = error as { message?: string };
+      toast.error((isNew ? "创建失败: " : "更新失败: ") + (err.message || "请求服务器出错"));
     }
   };
 
@@ -98,7 +99,7 @@ export default function EditHotelPage() {
   if (!isNew && !currentHotel) {
     return (
       <div className="p-8 text-center">
-        <p className="text-red-500 mb-4">酒店不存在或获取失败</p>
+        <p className="mb-4 text-red-500">酒店不存在或获取失败</p>
         <Button onClick={() => navigate("/merchant/hotels")}>返回我的酒店</Button>
       </div>
     );
@@ -109,7 +110,12 @@ export default function EditHotelPage() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full flex-col space-y-6">
         <div className="flex items-center justify-between border-b pb-4">
           <div className="flex items-center gap-4">
-            <Button type="button" variant="ghost" size="icon" onClick={() => navigate("/merchant/hotels")}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/merchant/hotels")}
+            >
               <ChevronLeft className="h-5 w-5" />
             </Button>
             <div>
@@ -121,33 +127,33 @@ export default function EditHotelPage() {
               )}
             </div>
           </div>
-          <Button type="submit" className="bg-gray-600 hover:bg-gray-800 text-white">
+          <Button type="submit" className="bg-gray-600 text-white hover:bg-gray-800">
             保存所有修改
           </Button>
         </div>
 
-      {currentHotel?.reject_reason && (
-        <div className="rounded-md bg-red-50 p-4 border border-red-200">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800 flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-red-600">
-                  ×
-                </span>
-                审核被驳回
-              </h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{currentHotel.reject_reason}</p>
+        {currentHotel?.reject_reason && (
+          <div className="rounded-md border border-red-200 bg-red-50 p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="flex items-center gap-2 text-sm font-medium text-red-800">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-red-600">
+                    ×
+                  </span>
+                  审核被驳回
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{currentHotel.reject_reason}</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="grid gap-6">
-        <HotelBasicInfoForm />
-        <RoomTypeManager />
-      </div>
+        <div className="grid gap-6">
+          <HotelBasicInfoForm />
+          <RoomTypeManager />
+        </div>
       </form>
     </Form>
   );
