@@ -1,0 +1,27 @@
+
+> yisu_hotel_pc@1.0.0 lint D:\Code\yisu\yisu_hotel_pc
+> eslint .
+
+
+D:\Code\yisu\yisu_hotel_pc\src\components\merchant\HotelBasicInfoForm.tsx
+  1:10  warning  'Label' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Code\yisu\yisu_hotel_pc\src\components\ui\badge.tsx
+  48:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\Code\yisu\yisu_hotel_pc\src\components\ui\button.tsx
+  62:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\Code\yisu\yisu_hotel_pc\src\components\ui\dropzone.tsx
+  429:3  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+  825:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\Code\yisu\yisu_hotel_pc\src\components\ui\form.tsx
+  163:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\Code\yisu\yisu_hotel_pc\src\router\index.tsx
+  11:7  warning  'HomePage' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+鉁?7 problems (0 errors, 7 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

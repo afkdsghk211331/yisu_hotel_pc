@@ -21,64 +21,79 @@ export function LoginPage() {
   const onLogin = async (email: string, password: string) => {
     setIsLoading(true);
     setError("");
-    
+
     try {
       // request.ts 已经提取了 response.data，所以这里直接拿到的是后端返回的对象
-      const response: any = await login({ email, password });
-      
+      interface LoginResponse {
+        success?: boolean;
+        msg?: string;
+        data?: {
+          token: string;
+          role: "user" | "merchant" | "admin";
+          username: string;
+          id: string | number;
+        };
+      }
+      const response = (await login({ email, password })) as unknown as LoginResponse;
+
       console.log("登录接口返回:", response);
-      
+
       // 检查后端返回的 success 字段
       if (response.success === false) {
         setError(response.msg || "登录失败，请检查您的账号和密码");
         return;
       }
-      
+
       // 后端返回结构：{ success: true, msg: '...', data: { token, role, username, id } }
       const { data } = response;
-      
+
       if (!data || !data.token) {
         setError("登录响应数据异常，请联系管理员");
         console.error("登录响应缺少必要字段:", response);
         return;
       }
-      
+
       // 关键：校验用户角色，只允许 merchant 和 admin 登录
       if (data.role === "user") {
         setError("普通住客无法登录商家管理系统，请使用小程序端");
         return;
       }
-      
+
       // 权限通过，保存 token 和用户信息
       setToken(data.token);
       setUserInfo({
-        id: data.id,
+        id: String(data.id),
         name: data.username,
         email: email,
         role: data.role,
       });
-      
+
       console.log("✅ 登录成功，准备跳转");
-      
+
       // 跳转到目标页面（如果有 from 则跳转回去，否则去首页）
-      const from = (location.state as any)?.from?.pathname || "/home";
+      const state = location.state as { from?: { pathname: string } } | null | undefined;
+      const from = state?.from?.pathname || "/home";
       navigate(from, { replace: true });
-      
-    } catch (err: any) {
+    } catch (err) {
+      const errorObj = err as {
+        message?: string;
+        response?: { data?: { msg?: string; message?: string } };
+        stack?: string;
+      };
       console.error("❌ 登录崩溃:", err);
       console.error("错误详情:", {
-        message: err?.message,
-        response: err?.response,
-        stack: err?.stack,
+        message: errorObj?.message,
+        response: errorObj?.response,
+        stack: errorObj?.stack,
       });
-      
+
       // 尝试从多个可能的位置提取错误信息
-      const errorMessage = 
-        err?.response?.data?.msg || 
-        err?.response?.data?.message || 
-        err?.message || 
+      const errorMessage =
+        errorObj?.response?.data?.msg ||
+        errorObj?.response?.data?.message ||
+        errorObj?.message ||
         "登录失败，请检查您的账号和密码";
-      
+
       setError(errorMessage);
     } finally {
       setIsLoading(false);

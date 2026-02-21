@@ -12,14 +12,14 @@ declare global {
 export default function useMapContainer() {
   useEffect(() => {
     window._AMapSecurityConfig = {
-      securityJsCode: "5a2b1e5c568a2055a3b2260aac1ff583",
+      securityJsCode: "c412d58a54c3d1f42bd4553cfd372b76",
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let map: any = null;
 
     AMapLoader.load({
-      key: "b053862a37669786bf8f67df87e0e138", // 申请好的Web端开发者Key，首次调用 load 时必填
+      key: "378b8800b01fe2960b45d97d1f360be7", // 申请好的Web端开发者Key，首次调用 load 时必填
       version: "2.0", // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
       plugins: ["AMap.Scale"], //需要使用的的插件列表，如比例尺'AMap.Scale'，支持添加多个如：['...','...']
     })
