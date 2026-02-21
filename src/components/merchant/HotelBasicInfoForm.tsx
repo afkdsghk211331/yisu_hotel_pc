@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { useState, KeyboardEvent } from "react";
 import { Dropzone, DropZoneArea, DropzoneTrigger, useDropzone } from "@/components/ui/dropzone";
 import {
   Select,
@@ -22,25 +21,14 @@ import { useFormContext } from "react-hook-form";
 import { HotelFormValues } from "@/schema/hotel";
 import { AddressMapSelector } from "./AddressMapSelector";
 
+const PREDEFINED_TAGS = ["亲子", "豪华", "商务", "度假", "温泉", "海景"];
+
 export function HotelBasicInfoForm() {
   const form = useFormContext<HotelFormValues>();
-  const [tagInput, setTagInput] = useState("");
 
   const currentTags = form.watch("tags") || [];
   const coverImage = form.watch("cover_image");
   const detailImages = form.watch("detail_images") || [];
-
-  const handleAddTag = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && tagInput.trim() !== "") {
-      e.preventDefault();
-      if (!currentTags.includes(tagInput.trim())) {
-        form.setValue("tags", [...currentTags, tagInput.trim()], {
-          shouldValidate: true,
-        });
-      }
-      setTagInput("");
-    }
-  };
 
   const removeTag = (tag: string) => {
     form.setValue(
@@ -248,30 +236,33 @@ export function HotelBasicInfoForm() {
               <FormItem>
                 <FormLabel>标签</FormLabel>
                 <FormControl>
-                  <div className="focus-within:ring-ring focus-within:border-primary flex min-h-10 flex-wrap items-center gap-2 rounded-md border bg-white p-2 transition-all focus-within:ring-1">
-                    {currentTags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant="secondary"
-                        className="flex items-center gap-1 border-none bg-gray-100 px-2 py-1 text-sm font-normal text-gray-600 hover:bg-gray-200"
-                      >
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={() => removeTag(tag)}
-                          className="ml-1 rounded-full transition-colors outline-none hover:text-red-500"
+                  <div className="grid grid-cols-3 gap-3 pt-1 pb-1">
+                    {PREDEFINED_TAGS.map((tag) => {
+                      const isSelected = currentTags.includes(tag);
+                      return (
+                        <Badge
+                          key={tag}
+                          variant={isSelected ? "default" : "outline"}
+                          className={cn(
+                            "flex w-full cursor-pointer items-center justify-center px-4 py-2 text-sm font-normal transition-all hover:opacity-80 active:scale-95",
+                            isSelected
+                              ? "bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-sm"
+                              : "border-gray-200 bg-white text-gray-600 hover:bg-gray-100",
+                          )}
+                          onClick={() => {
+                            if (isSelected) {
+                              removeTag(tag);
+                            } else {
+                              form.setValue("tags", [...currentTags, tag], {
+                                shouldValidate: true,
+                              });
+                            }
+                          }}
                         >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                    <input
-                      className="min-w-[80px] flex-1 border-none bg-transparent p-1 text-sm outline-none placeholder:text-gray-400"
-                      placeholder={currentTags.length ? "添加新标签..." : "输入标签，按回车添加"}
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={handleAddTag}
-                    />
+                          {tag}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </FormControl>
                 <FormMessage />

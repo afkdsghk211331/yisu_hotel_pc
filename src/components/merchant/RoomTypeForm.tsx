@@ -137,7 +137,7 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                 <div className="focus-within:ring-ring flex h-8 items-center justify-center rounded-md border bg-white px-2 transition-shadow focus-within:ring-1">
                   <Input
                     placeholder="请输入房型名称"
-                    className="h-7 w-full border-none px-1 text-sm shadow-none focus-visible:ring-0"
+                    className="h-7 w-full border-none bg-transparent px-1 text-sm shadow-none focus-visible:ring-0"
                     {...field}
                   />
                 </div>
@@ -161,7 +161,7 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                   <BedDouble className="h-4 w-4 shrink-0 text-gray-400" />
                   <Input
                     placeholder="例如: 1张2米特大床"
-                    className="h-7 w-full border-none px-1 text-sm text-gray-900 shadow-none focus-visible:ring-0"
+                    className="h-7 w-full border-none bg-transparent px-1 text-sm text-gray-900 shadow-none focus-visible:ring-0"
                     {...field}
                   />
                 </div>
@@ -187,7 +187,7 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                     <Input
                       type="number"
                       min={0}
-                      className="h-7 w-full border-none px-1 text-center shadow-none focus-visible:ring-0"
+                      className="h-7 w-full border-none bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       onFocus={(e) => e.target.value === "0" && (e.target.value = "")}
@@ -215,7 +215,7 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                     <Input
                       type="number"
                       min={0}
-                      className="h-7 w-full border-none px-1 text-center shadow-none focus-visible:ring-0"
+                      className="h-7 w-full border-none bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       onFocus={(e) => e.target.value === "0" && (e.target.value = "")}
@@ -242,7 +242,7 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                     <Input
                       type="number"
                       min={0}
-                      className="h-7 w-full border-none px-1 text-center shadow-none focus-visible:ring-0"
+                      className="h-7 w-full border-none bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       onFocus={(e) => e.target.value === "0" && (e.target.value = "")}
