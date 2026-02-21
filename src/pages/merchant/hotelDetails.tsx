@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useHotelStore } from "@/store/hotelStore";
 import { HotelBasicInfoForm } from "../../components/merchant/HotelBasicInfoForm";
 import { RoomTypeManager } from "../../components/merchant/RoomTypeForm";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2, SearchX } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { hotelSchema, HotelFormValues } from "@/schema/hotel";
@@ -30,7 +30,16 @@ export default function EditHotelPage() {
     tags: [],
     cover_image: "",
     detail_images: [],
-    rooms: [],
+    rooms: [
+      {
+        name: "",
+        price: 0,
+        stock: 0,
+        area: 1,
+        bed_info: "",
+        image: "",
+      },
+    ],
   };
 
   const form = useForm<HotelFormValues>({
@@ -93,21 +102,45 @@ export default function EditHotelPage() {
   };
 
   if (isLoading) {
-    return <div className="p-8 text-center text-gray-500">正在加载酒店详情...</div>;
+    return (
+      <div className="animate-in fade-in flex h-[70vh] flex-col items-center justify-center space-y-4 text-gray-400 duration-500">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+        <p className="text-sm font-medium tracking-wide">正在获取酒店数据，请稍候...</p>
+      </div>
+    );
   }
 
   if (!isNew && !currentHotel) {
     return (
-      <div className="p-8 text-center">
-        <p className="mb-4 text-red-500">酒店不存在或获取失败</p>
-        <Button onClick={() => navigate("/merchant/hotels")}>返回我的酒店</Button>
+      <div className="animate-in fade-in zoom-in-95 flex h-[70vh] flex-col items-center justify-center space-y-6 duration-500">
+        <div className="rounded-full bg-red-50 p-6 shadow-sm ring-4 ring-red-50/50">
+          <SearchX className="h-12 w-12 text-red-500" />
+        </div>
+        <div className="space-y-2 text-center">
+          <h2 className="text-xl font-bold text-gray-900">未找到酒店信息</h2>
+          <p className="text-sm text-gray-500">
+            该酒店可能已被删除，或者链接地址有误，请返回列表重试。
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate("/merchant/hotels")}
+          className="min-w-[140px] bg-gray-800 text-white shadow-sm transition-all hover:bg-black"
+        >
+          返回我的酒店
+        </Button>
       </div>
     );
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full flex-col space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.error("Form Validation Errors:", errors);
+          toast.error("表单校验失败，请检查填写内容");
+        })}
+        className="flex h-full flex-col space-y-6"
+      >
         <div className="flex items-center justify-between border-b pb-4">
           <div className="flex items-center gap-4">
             <Button

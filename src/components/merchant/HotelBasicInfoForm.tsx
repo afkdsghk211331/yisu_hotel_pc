@@ -5,19 +5,10 @@ import { zhCN } from "date-fns/locale";
 import { Calendar as CalendarIcon, UploadCloud, X, Hotel } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useState, KeyboardEvent } from "react";
-import {
-  Dropzone,
-  DropZoneArea,
-  DropzoneTrigger,
-  useDropzone,
-} from "@/components/ui/dropzone";
+import { Dropzone, DropZoneArea, DropzoneTrigger, useDropzone } from "@/components/ui/dropzone";
 import {
   Select,
   SelectContent,
@@ -25,13 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
 import { HotelFormValues } from "@/schema/hotel";
@@ -61,7 +46,7 @@ export function HotelBasicInfoForm() {
     form.setValue(
       "tags",
       currentTags.filter((t) => t !== tag),
-      { shouldValidate: true }
+      { shouldValidate: true },
     );
   };
 
@@ -83,11 +68,9 @@ export function HotelBasicInfoForm() {
       return { status: "success", result: url };
     },
     onFileUploaded: (url: string) => {
-      form.setValue(
-        "detail_images",
-        [...(form.getValues("detail_images") || []), url],
-        { shouldValidate: true }
-      );
+      form.setValue("detail_images", [...(form.getValues("detail_images") || []), url], {
+        shouldValidate: true,
+      });
     },
     validation: {
       accept: { "image/*": [] },
@@ -100,13 +83,13 @@ export function HotelBasicInfoForm() {
   };
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm p-6">
-      <h2 className="text-xl font-bold mb-6 text-gray-900 flex items-center gap-2">
-        <Hotel className="h-5 w-5 text-blue-600" />
+    <div className="rounded-lg border bg-white p-6 shadow-sm">
+      <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-900">
+        <Hotel className="h-5 w-5 text-gray-700" />
         酒店基础信息
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {/* 左侧：基础表单 */}
         <div className="space-y-4">
           <FormField
@@ -130,9 +113,15 @@ export function HotelBasicInfoForm() {
             name="english_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel required className="text-gray-700">酒店名称 (英)</FormLabel>
+                <FormLabel required className="text-gray-700">
+                  酒店名称 (英)
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="Please enter English name" {...field} value={field.value || ""} />
+                  <Input
+                    placeholder="Please enter English name"
+                    {...field}
+                    value={field.value || ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -166,93 +155,92 @@ export function HotelBasicInfoForm() {
             )}
           />
 
-          <div className="flex gap-4 items-start">
+          <div className="flex items-start gap-4">
             <div className="w-32">
               <FormField
-              control={form.control}
-              name="star"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel required className="text-gray-700">
-                    酒店星级
-                  </FormLabel>
-                  <Select
-                    value={field.value?.toString()}
-                    onValueChange={(val: string) => field.onChange(Number(val))}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="请选择星级" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="5">五星级</SelectItem>
-                      <SelectItem value="4">四星级</SelectItem>
-                      <SelectItem value="3">三星级</SelectItem>
-                      <SelectItem value="2">二星级</SelectItem>
-                      <SelectItem value="1">一星级</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                control={form.control}
+                name="star"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel required className="text-gray-700">
+                      酒店星级
+                    </FormLabel>
+                    <Select
+                      value={field.value?.toString()}
+                      onValueChange={(val: string) => field.onChange(Number(val))}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="请选择星级" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="5">五星级</SelectItem>
+                        <SelectItem value="4">四星级</SelectItem>
+                        <SelectItem value="3">三星级</SelectItem>
+                        <SelectItem value="2">二星级</SelectItem>
+                        <SelectItem value="1">一星级</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex-1">
               <FormField
-              control={form.control}
-              name="open_date"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel required className="text-gray-700">
-                    开业时间
-                  </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal mt-0",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? (
-                            format(new Date(field.value), "PPP", { locale: zhCN })
-                          ) : (
-                            <span>选择日期</span>
-                          )}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        locale={zhCN}
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          if (date) {
-                            field.onChange(format(date, "yyyy-MM-dd"));
-                          } else {
-                            field.onChange("");
-                          }
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                control={form.control}
+                name="open_date"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel required className="text-gray-700">
+                      开业时间
+                    </FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "mt-0 w-full justify-start text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              format(new Date(field.value), "PPP", { locale: zhCN })
+                            ) : (
+                              <span>选择日期</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          locale={zhCN}
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              field.onChange(format(date, "yyyy-MM-dd"));
+                            } else {
+                              field.onChange("");
+                            }
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
-
         </div>
 
         {/* 中间：标签及简介 */}
-        <div className="space-y-4 flex flex-col">
+        <div className="flex flex-col space-y-4">
           <FormField
             control={form.control}
             name="tags"
@@ -260,28 +248,26 @@ export function HotelBasicInfoForm() {
               <FormItem>
                 <FormLabel>标签</FormLabel>
                 <FormControl>
-                  <div className="flex flex-wrap items-center gap-2 min-h-10 p-2 border rounded-md bg-white focus-within:ring-1 focus-within:ring-ring focus-within:border-primary transition-all">
+                  <div className="focus-within:ring-ring focus-within:border-primary flex min-h-10 flex-wrap items-center gap-2 rounded-md border bg-white p-2 transition-all focus-within:ring-1">
                     {currentTags.map((tag) => (
                       <Badge
                         key={tag}
                         variant="secondary"
-                        className="flex items-center gap-1 py-1 px-2 text-sm font-normal text-gray-600 bg-gray-100 hover:bg-gray-200 border-none"
+                        className="flex items-center gap-1 border-none bg-gray-100 px-2 py-1 text-sm font-normal text-gray-600 hover:bg-gray-200"
                       >
                         {tag}
                         <button
                           type="button"
                           onClick={() => removeTag(tag)}
-                          className="ml-1 rounded-full outline-none hover:text-red-500 transition-colors"
+                          className="ml-1 rounded-full transition-colors outline-none hover:text-red-500"
                         >
                           <X className="h-3 w-3" />
                         </button>
                       </Badge>
                     ))}
                     <input
-                      className="flex-1 bg-transparent border-none outline-none text-sm min-w-[80px] p-1 placeholder:text-gray-400"
-                      placeholder={
-                        currentTags.length ? "添加新标签..." : "输入标签，按回车添加"
-                      }
+                      className="min-w-[80px] flex-1 border-none bg-transparent p-1 text-sm outline-none placeholder:text-gray-400"
+                      placeholder={currentTags.length ? "添加新标签..." : "输入标签，按回车添加"}
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={handleAddTag}
@@ -297,9 +283,9 @@ export function HotelBasicInfoForm() {
             control={form.control}
             name="description"
             render={({ field }) => (
-              <FormItem className="flex-1 flex flex-col min-h-0">
+              <FormItem className="flex min-h-0 flex-1 flex-col">
                 <FormLabel>酒店简介</FormLabel>
-                <FormControl className="flex-1 min-h-0">
+                <FormControl className="min-h-0 flex-1">
                   <Textarea
                     className="h-full min-h-[160px] resize-none overflow-y-auto"
                     placeholder="请输入酒店简介，突出亮点与特色"
@@ -326,13 +312,9 @@ export function HotelBasicInfoForm() {
                 <FormControl>
                   <div>
                     {coverImage ? (
-                      <div className="w-full h-32 border-2 border-dashed rounded-md overflow-hidden relative group transition-colors">
-                        <img
-                          src={coverImage}
-                          alt="cover"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity">
+                      <div className="group relative h-32 w-full overflow-hidden rounded-md border-2 border-dashed transition-colors">
+                        <img src={coverImage} alt="cover" className="h-full w-full object-cover" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                           <Button
                             type="button"
                             variant="secondary"
@@ -349,11 +331,15 @@ export function HotelBasicInfoForm() {
                       </div>
                     ) : (
                       <Dropzone {...coverDropzone}>
-                        <DropZoneArea className="w-full h-32 flex flex-col gap-2">
-                          <UploadCloud className="h-6 w-6 text-gray-400" />
-                          <DropzoneTrigger className="bg-transparent px-0 py-0 text-sm font-normal text-blue-600 hover:bg-transparent">
+                        <DropZoneArea className="relative flex h-32 w-full flex-col gap-2 transition-colors hover:bg-gray-50">
+                          <DropzoneTrigger
+                            className="absolute inset-0 z-10 m-0! h-full w-full cursor-pointer rounded-none border-none bg-transparent p-0! opacity-0 hover:bg-transparent"
+                            aria-label="点击上传封面"
+                          />
+                          <UploadCloud className="pointer-events-none h-6 w-6 text-gray-400" />
+                          <span className="pointer-events-none text-sm font-medium text-gray-700 transition-colors group-hover:text-gray-900">
                             点击上传封面
-                          </DropzoneTrigger>
+                          </span>
                         </DropZoneArea>
                       </Dropzone>
                     )}
@@ -375,28 +361,32 @@ export function HotelBasicInfoForm() {
                     {detailImages.map((url, index) => (
                       <div
                         key={index}
-                        className="w-24 h-24 border rounded-md overflow-hidden relative group shadow-sm"
+                        className="group relative h-24 w-24 overflow-hidden rounded-md border shadow-sm"
                       >
                         <img
                           src={url}
                           alt={`detail-${index}`}
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover"
                         />
                         <button
                           type="button"
                           onClick={() => removeDetailImage(index)}
-                          className="absolute top-1 right-1 bg-black/50 hover:bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all focus:outline-none"
+                          className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white opacity-0 transition-all group-hover:opacity-100 hover:bg-red-500 focus:outline-none"
                         >
                           <X className="h-3 w-3" />
                         </button>
                       </div>
                     ))}
                     <Dropzone {...detailDropzone}>
-                      <DropZoneArea className="w-24 h-24 flex flex-col items-center justify-center">
-                        <UploadCloud className="h-5 w-5 mb-1 text-gray-400" />
-                        <DropzoneTrigger className="bg-transparent px-0 py-0 text-[10px] font-normal text-blue-600 hover:bg-transparent text-center">
+                      <DropZoneArea className="relative flex h-24 w-24 flex-col items-center justify-center transition-colors hover:bg-gray-50">
+                        <DropzoneTrigger
+                          className="absolute inset-0 z-10 m-0! h-full w-full cursor-pointer rounded-none border-none bg-transparent p-0! opacity-0 hover:bg-transparent"
+                          aria-label="增加图片"
+                        />
+                        <UploadCloud className="pointer-events-none mb-1 h-5 w-5 text-gray-400" />
+                        <span className="pointer-events-none text-center text-[10px] font-medium text-gray-700 transition-colors group-hover:text-gray-900">
                           增加图片
-                        </DropzoneTrigger>
+                        </span>
                       </DropZoneArea>
                     </Dropzone>
                   </div>

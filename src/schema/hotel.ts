@@ -23,7 +23,7 @@ export const hotelSchema = z.object({
   detail_images: z.array(z.string()).optional().default([]),
   tags: z.array(z.string()).optional().default([]),
   description: z.string().optional(),
-  rooms: z.array(roomSchema).optional().default([]),
+  rooms: z.array(roomSchema).min(1, { message: "请至少添加一个房型" }).default([]),
 });
 
 export type HotelFormValues = z.infer<typeof hotelSchema>;
