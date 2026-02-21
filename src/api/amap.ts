@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const amapBaseURL = "https://restapi.amap.com/v3";
-const key = "3472349111046e399b927a89750ba335"; // 高德地图 Key
+const key = "be24a0ff97c37c0fa78d5a3c0c04b35c"; // 高德地图 Key
 
 const amapService = axios.create({ baseURL: amapBaseURL, timeout: 5000 });
 
@@ -22,10 +22,24 @@ export type IPResult = {
   rectangle: string;
 };
 
+export type InputTipResult = {
+  id: string;
+  name: string;
+  district: string;
+  location: string;
+  address: string;
+};
+
 const getLocationByIP = (ip?: string): Promise<AMapResponse<IPResult>> => {
   return amapService.get(`${amapBaseURL}/ip`, {
     params: { key, ip },
   });
 };
 
-export { getLocationByIP };
+const getInputTips = (keywords: string, city?: string): Promise<AMapResponse<{ count: string; infocode: string; info: string; status: string; tips: InputTipResult[] }>> => {
+  return amapService.get(`${amapBaseURL}/assistant/inputtips`, {
+    params: { key, keywords, city, datatype: "poi" },
+  });
+};
+
+export { getLocationByIP, getInputTips };

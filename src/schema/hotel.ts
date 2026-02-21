@@ -15,6 +15,8 @@ export const hotelSchema = z.object({
   name: z.string().min(1, { message: "请输入酒店中文名称" }),
   english_name: z.string().optional(),
   address: z.string().min(1, { message: "请输入详细地址" }),
+  longitude: z.string().optional(),
+  latitude: z.string().optional(),
   star: z.coerce.number().min(1).max(5).default(5),
   open_date: z.string().min(1, { message: "请选择开业时间" }),
   cover_image: z.string().min(1, { message: "请上传封面图" }),

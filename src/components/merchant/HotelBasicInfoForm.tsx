@@ -1,7 +1,7 @@
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
+import { zhCN } from "date-fns/locale";
 import { Calendar as CalendarIcon, UploadCloud, X, Hotel } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
 import { HotelFormValues } from "@/schema/hotel";
+import { AddressMapSelector } from "./AddressMapSelector";
 
 export function HotelBasicInfoForm() {
   const form = useFormContext<HotelFormValues>();
@@ -142,12 +143,23 @@ export function HotelBasicInfoForm() {
             control={form.control}
             name="address"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-1 md:col-span-2 lg:col-span-3">
                 <FormLabel required className="text-gray-700">
-                  地址
+                  地址与定位
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="请输入详细地址" {...field} />
+                  <AddressMapSelector
+                    value={field.value}
+                    longitude={form.watch("longitude")}
+                    latitude={form.watch("latitude")}
+                    onChange={(addr, loc) => {
+                      field.onChange(addr);
+                      if (loc) {
+                        form.setValue("longitude", loc.lng.toString(), { shouldValidate: true });
+                        form.setValue("latitude", loc.lat.toString(), { shouldValidate: true });
+                      }
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -208,7 +220,7 @@ export function HotelBasicInfoForm() {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {field.value ? (
-                            format(new Date(field.value), "PPP")
+                            format(new Date(field.value), "PPP", { locale: zhCN })
                           ) : (
                             <span>选择日期</span>
                           )}
@@ -218,6 +230,7 @@ export function HotelBasicInfoForm() {
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
+                        locale={zhCN}
                         selected={field.value ? new Date(field.value) : undefined}
                         onSelect={(date) => {
                           if (date) {
