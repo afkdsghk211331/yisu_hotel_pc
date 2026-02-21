@@ -1,9 +1,11 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { LoginPage } from "../pages/login";
 import { RegisterPage } from "../pages/register";
+import { SettingsPage } from "../pages/settings";
 import { Navigate } from "react-router-dom";
 import { AuthGuard } from "./AuthGuard";
 import { Layout } from "./Layout";
+import { HotelReviewPage } from "@/pages/review";
 
 // 临时首页组件（后续可以替换为实际的首页）
 const HomePage = () => {
@@ -36,7 +38,17 @@ const router = createBrowserRouter([
         <Layout />
       </AuthGuard>
     ),
-    children: [{ path: "/home", element: <HomePage /> }],
+    children: [
+      { path: "/home", element: <HomePage /> },
+      {
+        path: "/account/settings",
+        element: <SettingsPage />,
+      },
+      {
+        path: "/hotel/review",
+        element: <HotelReviewPage />,
+      },
+    ],
   },
   // 后续可以在这里添加更多需要保护的路由
   // {

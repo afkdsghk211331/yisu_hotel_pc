@@ -1,4 +1,4 @@
-import { Hotel, Settings, FileCheck } from "lucide-react";
+import { Hotel, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/store/userStore";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -11,12 +11,11 @@ export function Sidebar() {
   const { pathname } = useLocation();
 
   const merchantMenuItems = [
-    { id: "hotel-management", label: "我的酒店", icon: Hotel, path: "/merchant/hotels" },
     { id: "account-settings", label: "账号设置", icon: Settings, path: "/account/settings" },
   ];
 
   const adminMenuItems = [
-    { id: "hotel-review", label: "审核列表", icon: FileCheck, path: "/admin/hotel-review" },
+    { id: "hotel-list", label: "酒店列表", icon: Hotel, path: "/hotel/review" },
     { id: "account-settings", label: "账号设置", icon: Settings, path: "/account/settings" },
   ];
 
@@ -32,7 +31,7 @@ export function Sidebar() {
           return (
             <button
               key={item.id}
-              //onClick={() => navigate(item.path)}
+              onClick={() => navigate(item.path)}
               className={cn(
                 "flex w-full items-center gap-3 rounded-lg px-4 py-3 transition-colors",
                 isActive ? "bg-blue-50 text-blue-600" : "text-gray-700 hover:bg-gray-50",
