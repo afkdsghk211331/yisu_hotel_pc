@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
 import { HotelFormValues } from "@/schema/hotel";
 import { AddressMapSelector } from "./AddressMapSelector";
+import { uploadImage } from "@/api/upload";
 
 const PREDEFINED_TAGS = ["亲子", "豪华", "商务", "度假", "温泉", "海景"];
 
@@ -40,9 +41,14 @@ export function HotelBasicInfoForm() {
 
   const coverDropzone = useDropzone({
     onDropFile: async (file) => {
-      const url = URL.createObjectURL(file);
-      form.setValue("cover_image", url, { shouldValidate: true });
-      return { status: "success", result: url };
+      try {
+        const url = await uploadImage(file);
+        form.setValue("cover_image", url, { shouldValidate: true });
+        return { status: "success", result: url };
+      } catch (error) {
+        console.error("封面上传失败:", error);
+        return { status: "error", error: "上传失败" };
+      }
     },
     validation: {
       accept: { "image/*": [] },
@@ -52,8 +58,13 @@ export function HotelBasicInfoForm() {
 
   const detailDropzone = useDropzone({
     onDropFile: async (file) => {
-      const url = URL.createObjectURL(file);
-      return { status: "success", result: url };
+      try {
+        const url = await uploadImage(file);
+        return { status: "success", result: url };
+      } catch (error) {
+        console.error("详情图上传失败:", error);
+        return { status: "error", error: "上传失败" };
+      }
     },
     onFileUploaded: (url: string) => {
       form.setValue("detail_images", [...(form.getValues("detail_images") || []), url], {
@@ -127,8 +138,8 @@ export function HotelBasicInfoForm() {
                 <FormControl>
                   <AddressMapSelector
                     value={field.value}
-                    longitude={form.watch("longitude")}
-                    latitude={form.watch("latitude")}
+                    longitude={form.watch("longitude") || undefined}
+                    latitude={form.watch("latitude") || undefined}
                     onChange={(addr, loc) => {
                       field.onChange(addr);
                       if (loc) {

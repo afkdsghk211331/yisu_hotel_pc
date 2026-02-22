@@ -1,9 +1,9 @@
 import { AlertCircle, CheckCircle, Clock, LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { MerchantHotelResponse } from "@/api/hotel";
+import { Hotel } from "@/api/hotel";
 
-export type HotelStatus = MerchantHotelResponse["status"];
+export type HotelStatus = Hotel["status"];
 
 const statusConfig: Record<
   HotelStatus,

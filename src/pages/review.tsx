@@ -101,7 +101,9 @@ export function HotelReviewPage() {
       const list: Hotel[] = res.data;
       setHotels(list);
     } catch (e: unknown) {
-      toast.error("获取酒店列表失败", { description: e.message ?? "请稍后重试" });
+      toast.error("获取酒店列表失败", {
+        description: e instanceof Error ? e.message : "请稍后重试",
+      });
     } finally {
       setLoading(false);
     }

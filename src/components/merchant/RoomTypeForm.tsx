@@ -14,6 +14,7 @@ import {
 import { Dropzone, DropZoneArea, DropzoneTrigger, useDropzone } from "@/components/ui/dropzone";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { uploadImage } from "@/api/upload";
 
 export function RoomTypeManager() {
   const form = useFormContext<HotelFormValues>();
@@ -80,9 +81,14 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
 
   const imageDropzone = useDropzone({
     onDropFile: async (file) => {
-      const url = URL.createObjectURL(file);
-      form.setValue(imageField, url, { shouldValidate: true });
-      return { status: "success", result: url };
+      try {
+        const url = await uploadImage(file);
+        form.setValue(imageField, url, { shouldValidate: true });
+        return { status: "success", result: url };
+      } catch (error) {
+        console.error("房型图上传失败:", error);
+        return { status: "error", error: "上传失败" };
+      }
     },
     validation: {
       accept: { "image/*": [] },
@@ -134,13 +140,11 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                 房型名称
               </FormLabel>
               <FormControl>
-                <div className="focus-within:ring-ring flex h-8 items-center justify-center rounded-md border bg-white px-2 transition-shadow focus-within:ring-1">
-                  <Input
-                    placeholder="请输入房型名称"
-                    className="h-7 w-full border-none bg-transparent px-1 text-sm shadow-none focus-visible:ring-0"
-                    {...field}
-                  />
-                </div>
+                <Input
+                  placeholder="请输入房型名称"
+                  className="h-8 w-full bg-white px-3 text-sm"
+                  {...field}
+                />
               </FormControl>
               <FormMessage className="text-sm" />
             </FormItem>
@@ -156,16 +160,16 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
               <FormLabel required className="text-sm">
                 床型
               </FormLabel>
-              <FormControl>
-                <div className="focus-within:ring-ring flex h-8 items-center justify-center rounded-md border bg-white px-2 transition-shadow focus-within:ring-1">
-                  <BedDouble className="h-4 w-4 shrink-0 text-gray-400" />
+              <div className="relative">
+                <BedDouble className="absolute top-2 left-2.5 h-4 w-4 text-gray-400" />
+                <FormControl>
                   <Input
                     placeholder="例如: 1张2米特大床"
-                    className="h-7 w-full border-none bg-transparent px-1 text-sm text-gray-900 shadow-none focus-visible:ring-0"
+                    className="h-8 w-full bg-white pr-3 pl-8 text-sm text-gray-900"
                     {...field}
                   />
-                </div>
-              </FormControl>
+                </FormControl>
+              </div>
               <FormMessage className="text-sm" />
             </FormItem>
           )}
@@ -181,20 +185,20 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                 <FormLabel required className="text-sm text-gray-500">
                   数量
                 </FormLabel>
-                <FormControl>
-                  <div className="flex h-8 items-center justify-center rounded-md border bg-white px-2 text-sm transition-shadow focus-within:ring-1">
-                    <Grid2x2 className="h-4 w-4 shrink-0 text-gray-400" />
+                <div className="relative">
+                  <Grid2x2 className="absolute top-2 left-2.5 h-4 w-4 text-gray-400" />
+                  <FormControl>
                     <Input
                       type="number"
                       min={0}
-                      className="h-7 w-full border-none bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                      className="h-8 w-full bg-white pr-3 pl-8 text-sm"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       onFocus={(e) => e.target.value === "0" && (e.target.value = "")}
                       onBlur={(e) => e.target.value === "" && field.onChange(0)}
                     />
-                  </div>
-                </FormControl>
+                  </FormControl>
+                </div>
                 <FormMessage className="text-sm" />
               </FormItem>
             )}
@@ -208,21 +212,20 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                 <FormLabel required className="text-sm text-gray-500">
                   价格 (¥)
                 </FormLabel>
-                <FormControl>
-                  <div className="flex h-8 items-center justify-center rounded-md border bg-white px-2 text-sm transition-shadow focus-within:ring-1">
-                    <CircleDollarSign className="h-4 w-4 shrink-0 text-gray-400" />
-
+                <div className="relative">
+                  <CircleDollarSign className="absolute top-2 left-2.5 h-4 w-4 text-gray-400" />
+                  <FormControl>
                     <Input
                       type="number"
                       min={0}
-                      className="h-7 w-full border-none bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                      className="h-8 w-full bg-white pr-3 pl-8 text-sm"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       onFocus={(e) => e.target.value === "0" && (e.target.value = "")}
                       onBlur={(e) => e.target.value === "" && field.onChange(0)}
                     />
-                  </div>
-                </FormControl>
+                  </FormControl>
+                </div>
                 <FormMessage className="text-sm" />
               </FormItem>
             )}
@@ -236,20 +239,20 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                 <FormLabel required className="text-sm text-gray-500">
                   面积 (m²)
                 </FormLabel>
-                <FormControl>
-                  <div className="flex h-8 items-center justify-center rounded-md border bg-white px-2 text-sm transition-shadow focus-within:ring-1">
-                    <AreaChart className="h-4 w-4 shrink-0 text-gray-400" />
+                <div className="relative">
+                  <AreaChart className="absolute top-2 left-2.5 h-4 w-4 text-gray-400" />
+                  <FormControl>
                     <Input
                       type="number"
                       min={0}
-                      className="h-7 w-full border-none bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                      className="h-8 w-full bg-white pr-3 pl-8 text-sm"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       onFocus={(e) => e.target.value === "0" && (e.target.value = "")}
                       onBlur={(e) => e.target.value === "" && field.onChange(0)}
                     />
-                  </div>
-                </FormControl>
+                  </FormControl>
+                </div>
                 <FormMessage className="text-sm" />
               </FormItem>
             )}

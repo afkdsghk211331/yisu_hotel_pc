@@ -7,16 +7,16 @@ export const roomSchema = z.object({
   stock: z.coerce.number().min(0, { message: "库存不能小于0" }),
   area: z.coerce.number().min(1, { message: "面积不能小于1" }),
   bed_info: z.string().min(1, { message: "请输入床型信息" }),
-  image: z.string().optional(),
+  image: z.string().min(1, { message: "请上传床型封面图" }),
 });
 
 export const hotelSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(1, { message: "请输入酒店中文名称" }),
-  english_name: z.string().optional(),
+  english_name: z.string().min(1, { message: "请输入酒店英文名称" }),
   address: z.string().min(1, { message: "请输入详细地址" }),
-  longitude: z.string().optional(),
-  latitude: z.string().optional(),
+  longitude: z.string().nullable().optional(),
+  latitude: z.string().nullable().optional(),
   star: z.coerce.number().min(1).max(5).default(5),
   open_date: z.string().min(1, { message: "请选择开业时间" }),
   cover_image: z.string().min(1, { message: "请上传封面图" }),

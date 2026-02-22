@@ -1,23 +1,23 @@
-import { create } from 'zustand';
-import { 
-  getMerchantHotels, 
-  getMerchantHotelDetail, 
+import { create } from "zustand";
+import {
+  getMerchantHotels,
+  getMerchantHotelDetail,
   deleteMerchantHotel,
-  MerchantHotelResponse,
-  MerchantRoomRequest
-} from '@/api/hotel';
+  Hotel,
+  Room,
+} from "@/api/hotel";
 
 interface HotelState {
-  hotelList: MerchantHotelResponse[];
-  currentHotel: MerchantHotelResponse | null;
+  hotelList: Hotel[];
+  currentHotel: Hotel | null;
   isLoading: boolean;
   error: string | null;
   fetchHotelList: () => Promise<void>;
   fetchHotelDetail: (id: number) => Promise<void>;
   clearCurrentHotel: () => void;
   deleteHotel: (id: number) => Promise<void>;
-  addRoomType: (room: Omit<MerchantRoomRequest, 'id'>) => Promise<void>;
-  updateRoomType: (roomId: number, roomData: Partial<MerchantRoomRequest>) => Promise<void>;
+  addRoomType: (room: Omit<Room, "id">) => Promise<void>;
+  updateRoomType: (roomId: number, roomData: Partial<Room>) => Promise<void>;
   deleteRoomType: (roomId: number) => Promise<void>;
 }
 
@@ -35,13 +35,13 @@ export const useHotelStore = create<HotelState>((set) => ({
       if (response && response.success) {
         set({ hotelList: response.data, isLoading: false });
       } else {
-        set({ error: response?.msg || '获取酒店列表失败', isLoading: false });
+        set({ error: response?.msg || "获取酒店列表失败", isLoading: false });
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        set({ error: error.message || '获取酒店列表出错', isLoading: false });
+        set({ error: error.message || "获取酒店列表出错", isLoading: false });
       } else {
-        set({ error: '获取酒店列表出错', isLoading: false });
+        set({ error: "获取酒店列表出错", isLoading: false });
       }
     }
   },
@@ -54,13 +54,13 @@ export const useHotelStore = create<HotelState>((set) => ({
       if (response && response.success) {
         set({ currentHotel: response.data, isLoading: false });
       } else {
-        set({ error: response?.msg || '酒店不存在', isLoading: false });
+        set({ error: response?.msg || "酒店不存在", isLoading: false });
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        set({ error: error.message || '获取酒店详情失败', isLoading: false });
+        set({ error: error.message || "获取酒店详情失败", isLoading: false });
       } else {
-        set({ error: '获取酒店详情失败', isLoading: false });
+        set({ error: "获取酒店详情失败", isLoading: false });
       }
     }
   },
@@ -77,28 +77,28 @@ export const useHotelStore = create<HotelState>((set) => ({
       const response = await deleteMerchantHotel(id);
       if (response && response.success) {
         set((state) => ({
-          hotelList: state.hotelList.filter(h => h.id !== id),
-          isLoading: false
+          hotelList: state.hotelList.filter((h) => h.id !== id),
+          isLoading: false,
         }));
       } else {
-        set({ error: response?.msg || '删除失败', isLoading: false });
+        set({ error: response?.msg || "删除失败", isLoading: false });
       }
     } catch (error: unknown) {
-      console.error('删除酒店失败', error);
+      console.error("删除酒店失败", error);
       if (error instanceof Error) {
-        set({ error: error.message || '删除出错', isLoading: false });
+        set({ error: error.message || "删除出错", isLoading: false });
       } else {
-        set({ error: '删除出错', isLoading: false });
+        set({ error: "删除出错", isLoading: false });
       }
     }
   },
 
   // 前端本地管理房型 (不立即发起请求)
-  addRoomType: async (roomData: Omit<MerchantRoomRequest, 'id'>) => {
+  addRoomType: async (roomData: Omit<Room, "id">) => {
     try {
       set((state) => {
         if (!state.currentHotel) return state;
-        const newRoom: MerchantRoomRequest = {
+        const newRoom: Room = {
           ...roomData,
           id: Date.now(), // 临时ID
         };
@@ -111,17 +111,17 @@ export const useHotelStore = create<HotelState>((set) => ({
         };
       });
     } catch (error) {
-      console.error('新增房型失败', error);
+      console.error("新增房型失败", error);
     }
   },
 
-  updateRoomType: async (roomId: number, roomData: Partial<MerchantRoomRequest>) => {
+  updateRoomType: async (roomId: number, roomData: Partial<Room>) => {
     try {
       set((state) => {
         if (!state.currentHotel) return state;
         const currentRooms = state.currentHotel.rooms || [];
         const updatedRooms = currentRooms.map((room) =>
-          room.id === roomId ? { ...room, ...roomData } : room
+          room.id === roomId ? { ...room, ...roomData } : room,
         );
         return {
           currentHotel: {
@@ -131,7 +131,7 @@ export const useHotelStore = create<HotelState>((set) => ({
         };
       });
     } catch (error) {
-      console.error('更新房型失败', error);
+      console.error("更新房型失败", error);
     }
   },
 
@@ -149,7 +149,7 @@ export const useHotelStore = create<HotelState>((set) => ({
         };
       });
     } catch (error) {
-      console.error('删除房型失败', error);
+      console.error("删除房型失败", error);
     }
   },
 }));

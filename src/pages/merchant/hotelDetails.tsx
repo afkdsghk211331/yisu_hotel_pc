@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { hotelSchema, HotelFormValues } from "@/schema/hotel";
 import { Form } from "@/components/ui/form";
 
-import { updateMerchantHotel, createMerchantHotel, MerchantHotelRequest } from "@/api/hotel";
+import { updateMerchantHotel, createMerchantHotel, MerchantHotelservice } from "@/api/hotel";
 import { toast } from "sonner";
 
 export default function EditHotelPage() {
@@ -71,20 +71,24 @@ export default function EditHotelPage() {
 
   const onSubmit = async (data: HotelFormValues) => {
     try {
-      const apiData: MerchantHotelRequest = {
+      const apiData: MerchantHotelservice = {
         name: data.name,
         english_name: data.english_name,
         address: data.address,
+        longitude: data.longitude || undefined,
+        latitude: data.latitude || undefined,
         star: data.star,
-        description: data.description,
+        description: data.description || "",
         cover_image: data.cover_image,
         detail_images: data.detail_images,
         open_date: data.open_date,
         tags: data.tags,
-        rooms: data.rooms?.map((room) => ({
-          ...room,
-          id: room.id || undefined, // undefined prevents sending dirty temp ids to api for creation
-        })),
+        rooms: data.rooms?.map((room) => {
+          const { id: _id, ...rest } = room;
+          return isNew
+            ? { ...rest, image: rest.image ?? "" }
+            : { ...room, image: room.image ?? "" };
+        }),
       };
 
       if (isNew) {
@@ -124,7 +128,7 @@ export default function EditHotelPage() {
         </div>
         <Button
           onClick={() => navigate("/merchant/hotels")}
-          className="min-w-[140px] bg-gray-800 text-white shadow-sm transition-all hover:bg-black"
+          className="min-w-35 bg-gray-800 text-white shadow-sm transition-all hover:bg-black"
         >
           返回我的酒店
         </Button>
