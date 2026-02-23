@@ -14,7 +14,8 @@ import {
 import { Dropzone, DropZoneArea, DropzoneTrigger, useDropzone } from "@/components/ui/dropzone";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { uploadImage } from "@/api/upload";
+import { uploadImage, deleteImage } from "@/api/upload";
+import { toast } from "sonner";
 
 export function RoomTypeManager() {
   const form = useFormContext<HotelFormValues>();
@@ -96,6 +97,20 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
     },
   });
 
+  const removeRoomImage = async () => {
+    const imageUrl = currentImage;
+    if (!imageUrl) return;
+
+    try {
+      await deleteImage(imageUrl);
+      form.setValue(imageField, "", { shouldValidate: true });
+      toast.success("房型图片删除成功");
+    } catch (error) {
+      console.error("删除房型图片失败:", error);
+      toast.error("删除房型图片失败，请重试");
+    }
+  };
+
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border bg-gray-50 transition-shadow hover:shadow-md">
       <div className="group relative h-40 bg-gray-200">
@@ -107,9 +122,9 @@ function RoomCard({ index, onDelete }: { index: number; onDelete: () => void }) 
                 type="button"
                 variant="secondary"
                 size="sm"
-                onClick={() => form.setValue(imageField, "", { shouldValidate: true })}
+                onClick={removeRoomImage}
               >
-                重新上传
+                删除并重新上传
               </Button>
             </div>
           </>

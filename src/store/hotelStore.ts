@@ -32,6 +32,7 @@ export const useHotelStore = create<HotelState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await getMerchantHotels();
+      console.log("商家酒店列表数据:", response.data);
       if (response && response.success) {
         set({ hotelList: response.data, isLoading: false });
       } else {

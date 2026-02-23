@@ -20,7 +20,8 @@ import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
 import { HotelFormValues } from "@/schema/hotel";
 import { AddressMapSelector } from "./AddressMapSelector";
-import { uploadImage } from "@/api/upload";
+import { uploadImage, deleteImage } from "@/api/upload";
+import { toast } from "sonner";
 
 const PREDEFINED_TAGS = ["亲子", "豪华", "商务", "度假", "温泉", "海景"];
 
@@ -76,9 +77,31 @@ export function HotelBasicInfoForm() {
     },
   });
 
-  const removeDetailImage = (indexToRemove: number) => {
-    const newImages = detailImages.filter((_, i) => i !== indexToRemove);
-    form.setValue("detail_images", newImages, { shouldValidate: true });
+  const removeDetailImage = async (indexToRemove: number) => {
+    const imageUrl = detailImages[indexToRemove];
+    try {
+      await deleteImage(imageUrl);
+      const newImages = detailImages.filter((_, i) => i !== indexToRemove);
+      form.setValue("detail_images", newImages, { shouldValidate: true });
+      toast.success("图片删除成功");
+    } catch (error) {
+      console.error("删除图片失败:", error);
+      toast.error("删除图片失败，请重试");
+    }
+  };
+
+  const removeCoverImage = async () => {
+    const imageUrl = coverImage;
+    if (!imageUrl) return;
+    
+    try {
+      await deleteImage(imageUrl);
+      form.setValue("cover_image", "", { shouldValidate: true });
+      toast.success("封面图删除成功");
+    } catch (error) {
+      console.error("删除封面图失败:", error);
+      toast.error("删除封面图失败，请重试");
+    }
   };
 
   return (
@@ -321,13 +344,9 @@ export function HotelBasicInfoForm() {
                             type="button"
                             variant="secondary"
                             size="sm"
-                            onClick={() =>
-                              form.setValue("cover_image", "", {
-                                shouldValidate: true,
-                              })
-                            }
+                            onClick={removeCoverImage}
                           >
-                            重新上传
+                            删除并重新上传
                           </Button>
                         </div>
                       </div>
