@@ -80,8 +80,8 @@ export type HotelFilterBody = {
   page_size?: number;
 };
 
-export const getHotels = (body?: HotelFilterBody): Promise<HotelsResponse> => {
-  return service.post("/api/admin/hotels", body ?? {});
+export const getHotels = (): Promise<HotelsResponse> => {
+  return service.get("/api/admin/hotels/pending");
 };
 
 export const auditHotel = (body: AuditBody): Promise<AuditResponse> => {

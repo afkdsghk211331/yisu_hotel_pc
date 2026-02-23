@@ -45,7 +45,6 @@ import {
   auditHotel,
   getHotels,
   type Hotel,
-  type HotelFilterBody,
   type HotelStatus,
 } from "@/api/hotel";
 
@@ -74,9 +73,9 @@ export function HotelReviewPage() {
   const [filterStatus, setFilterStatus] = useState<HotelStatus | undefined>(undefined);
   const [filterCity, setFilterCity] = useState<string | undefined>(undefined);
 
-  // 分页（后端支持）
+  // 分页（前端分页，后端一次返回全部）
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const pageSize = 10;
 
   // Dialog states
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
@@ -87,18 +86,12 @@ export function HotelReviewPage() {
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
-  // ✅ 保存当前查询条件：审核后刷新保持筛选/分页
-  const [currentQuery, setCurrentQuery] = useState<HotelFilterBody>({
-    page: 1,
-    page_size: 10,
-  });
-
-  const fetchHotels = async (body?: HotelFilterBody) => {
+  const fetchHotels = async () => {
     setLoading(true);
     try {
-      const res = await getHotels(body ?? {});
+      const res = await getHotels();
       if (!res.success) throw new Error(res.msg || "获取失败");
-      const list: Hotel[] = res.data;
+      const list: Hotel[] = res.data ?? [];
       setHotels(list);
     } catch (e: unknown) {
       toast.error("获取酒店列表失败", {
@@ -109,32 +102,15 @@ export function HotelReviewPage() {
     }
   };
 
-  const buildQueryBody = (override?: Partial<HotelFilterBody>): HotelFilterBody => {
-    return {
-      name: searchName.trim() ? searchName.trim() : undefined,
-      owner_name: searchOwnerName.trim() ? searchOwnerName.trim() : undefined,
-      status: filterStatus,
-      city: filterCity, // ✅ 现在也走后端
-      page,
-      page_size: pageSize,
-      ...override,
-    };
-  };
-
-  // 首次加载：拉第一页
+  // 首次加载
   useEffect(() => {
-    const initBody: HotelFilterBody = { page: 1, page_size: pageSize };
-    setCurrentQuery(initBody);
-    fetchHotels(initBody);
+    fetchHotels();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = async () => {
-    // ✅ 搜索：从第一页开始
-    const body = buildQueryBody({ page: 1 });
     setPage(1);
-    setCurrentQuery(body);
-    await fetchHotels(body);
+    await fetchHotels();
   };
 
   const handleReset = async () => {
@@ -143,10 +119,7 @@ export function HotelReviewPage() {
     setFilterStatus(undefined);
     setFilterCity(undefined);
     setPage(1);
-
-    const body: HotelFilterBody = { page: 1, page_size: pageSize };
-    setCurrentQuery(body);
-    await fetchHotels(body);
+    await fetchHotels();
   };
 
   const doAudit = async (hotelId: number, status: HotelStatus, reject_reason?: string) => {
@@ -158,11 +131,11 @@ export function HotelReviewPage() {
       });
       if (!res.success) throw new Error(res.msg || "操作失败");
 
-      await fetchHotels(currentQuery);
+      await fetchHotels();
       return true;
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "请稍后重试";
-      toast.error("获取酒店列表失败", { description: msg });
+      toast.error("操作失败", { description: msg });
     }
   };
 
@@ -234,23 +207,17 @@ export function HotelReviewPage() {
     setSelectedHotel(hotel);
   };
 
-  const goPrevPage = async () => {
-    if (page <= 1) return;
-    const next = page - 1;
-    setPage(next);
+  const totalPages = Math.ceil(hotels.length / pageSize) || 1;
+  const displayHotels = hotels.slice((page - 1) * pageSize, page * pageSize);
 
-    const body = buildQueryBody({ page: next });
-    setCurrentQuery(body);
-    await fetchHotels(body);
+  const goPrevPage = () => {
+    if (page <= 1) return;
+    setPage(page - 1);
   };
 
-  const goNextPage = async () => {
-    const next = page + 1;
-    setPage(next);
-
-    const body = buildQueryBody({ page: next });
-    setCurrentQuery(body);
-    await fetchHotels(body);
+  const goNextPage = () => {
+    if (page >= totalPages) return;
+    setPage(page + 1);
   };
 
   return (
@@ -348,14 +315,14 @@ export function HotelReviewPage() {
               </TableHeader>
 
               <TableBody>
-                {hotels.length === 0 ? (
+                {displayHotels.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="py-8 text-center text-gray-500">
                       暂无数据
                     </TableCell>
                   </TableRow>
                 ) : (
-                  hotels.map((hotel) => (
+                  displayHotels.map((hotel) => (
                     <TableRow key={hotel.id} className="hover:bg-gray-50">
                       <TableCell className="font-mono text-sm">{hotel.id}</TableCell>
 
@@ -461,8 +428,8 @@ export function HotelReviewPage() {
           </div>
 
           <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
-            <div>当前页：{page}</div>
-            <div>本页 {hotels.length} 条</div>
+            <div>当前页：{page} / {totalPages}</div>
+            <div>共 {hotels.length} 条，本页 {displayHotels.length} 条</div>
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -472,7 +439,12 @@ export function HotelReviewPage() {
               >
                 上一页
               </Button>
-              <Button variant="outline" size="sm" onClick={goNextPage} disabled={loading}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goNextPage}
+                disabled={loading || page >= totalPages}
+              >
                 下一页
               </Button>
             </div>
