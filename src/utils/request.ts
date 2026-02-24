@@ -1,8 +1,10 @@
 import axios from "axios";
 import { useUserStore } from "../store/userStore";
 
-// 强制使用阿里云后端地址（开发和生产环境都使用）
-const baseURL = "http://116.62.19.40:3001";
+// // 强制使用阿里云后端地址（开发和生产环境都使用）
+// const baseURL = "http://116.62.19.40:3001";
+// 本地测试地址;
+const baseURL = "http://localhost:3001";
 
 const service = axios.create({
   baseURL: baseURL,
