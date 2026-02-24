@@ -28,8 +28,12 @@ export function RegisterPage() {
   }) => {
     setIsLoading(true);
     try {
-      const response: any = await register(userInfo);
-      
+      interface RegisterResponse {
+        success?: boolean;
+        msg?: string;
+      }
+      const response = (await register(userInfo)) as unknown as RegisterResponse;
+
       // 检查后端返回的 success 字段
       if (response && response.success === false) {
         // 后端返回业务失败，提取 msg 显示
@@ -37,16 +41,20 @@ export function RegisterPage() {
         setError(errorMessage);
         return;
       }
-      
+
       // 注册成功，跳转到登录页
       navigate("/login");
-    } catch (err: any) {
+    } catch (err) {
+      const errorObj = err as {
+        message?: string;
+        response?: { data?: { msg?: string; message?: string } };
+      };
       console.error("注册失败:", err);
       // 尝试从多个可能的位置提取错误信息
-      const errorMessage = 
-        err?.response?.data?.msg || 
-        err?.response?.data?.message || 
-        err?.message || 
+      const errorMessage =
+        errorObj?.response?.data?.msg ||
+        errorObj?.response?.data?.message ||
+        errorObj?.message ||
         "注册失败，请稍后再试";
       setError(errorMessage);
     } finally {

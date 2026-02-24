@@ -1,4 +1,4 @@
-import service from "../utils/request";
+import { userService } from "../utils/request";
 
 type RegisterData = {
   email: string;
@@ -33,13 +33,13 @@ type UserInfoResponse = {
 };
 
 export const register = (data: RegisterData) => {
-  return service.post("/api/user/register", data);
+  return userService.post("/api/user/register", data);
 };
 
 export const login = (data: LoginData): Promise<LoginResponse> => {
-  return service.post("/api/user/login", data);
+  return userService.post("/api/user/login", data);
 };
 
 export const getUserInfo = (): Promise<UserInfoResponse> => {
-  return service.get("/api/user/info");
+  return userService.get("/api/user/info");
 };
