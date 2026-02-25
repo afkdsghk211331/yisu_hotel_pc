@@ -12,6 +12,7 @@ import { Form } from "@/components/ui/form";
 
 import { updateMerchantHotel, createMerchantHotel, MerchantHotelservice } from "@/api/hotel";
 import { toast } from "sonner";
+import { useUserStore } from "@/store/userStore";
 
 export default function EditHotelPage() {
   const { id } = useParams();
@@ -28,6 +29,7 @@ export default function EditHotelPage() {
     open_date: "",
     description: "",
     tags: [],
+    facilities: [],
     cover_image: "",
     detail_images: [],
     rooms: [
@@ -63,6 +65,7 @@ export default function EditHotelPage() {
         ...currentHotel,
         open_date: currentHotel.open_date || "",
         tags: currentHotel.tags || [],
+        facilities: (currentHotel as HotelFormValues & { facilities?: string[] }).facilities || [],
         detail_images: currentHotel.detail_images || [],
         rooms: currentHotel.rooms || [],
       } as HotelFormValues);
@@ -70,11 +73,24 @@ export default function EditHotelPage() {
   }, [currentHotel, form, isNew]);
 
   const onSubmit = async (data: HotelFormValues) => {
+    // 安全校验：获取当前登录用户 ID
+    const userInfo = useUserStore.getState().userInfo;
+    if (!userInfo?.id) {
+      toast.error("获取商户身份信息失败，请重新登录");
+      return;
+    }
+
     try {
+      // 从地址中提取城市名（兼容 "XX省XX市" 和 "上海市" 直辖市两种格式）
+      const cityMatch = data.address.match(/(?:省|自治区)(.+?市)|^(.+?市)/);
+      const city = cityMatch ? (cityMatch[1] || cityMatch[2] || "") : "";
+
       const apiData: MerchantHotelservice = {
+        owner_id: Number(userInfo.id),
         name: data.name,
         english_name: data.english_name,
         address: data.address,
+        city,
         longitude: data.longitude || undefined,
         latitude: data.latitude || undefined,
         star: data.star,
@@ -83,6 +99,7 @@ export default function EditHotelPage() {
         detail_images: data.detail_images,
         open_date: data.open_date,
         tags: data.tags,
+        facilities: data.facilities,
         rooms: data.rooms?.map((room) => {
           const { id: _id, ...rest } = room;
           return isNew

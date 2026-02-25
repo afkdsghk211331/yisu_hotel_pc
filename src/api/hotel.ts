@@ -1,4 +1,14 @@
 import service from "../utils/request";
+import { useUserStore } from "../store/userStore";
+
+// 从 store 中安全地读取当前用户的 role 和 userId
+function getUserParams() {
+  const { userInfo } = useUserStore.getState();
+  return {
+    role: userInfo?.role ?? "",
+    userId: userInfo?.id ?? "",
+  };
+}
 
 export type HotelStatus = "pending" | "published" | "rejected" | "offline";
 
@@ -28,17 +38,20 @@ export type Hotel = {
   score: number;
   description: string;
   cover_image: string;
-  detail_images: string[];
+  detail_images: string[] | string;
   open_date: string;
-  tags: string[];
+  tags: string[] | string;
+  facilities?: string[] | string;
   rooms?: Room[];
   reject_reason?: string;
 };
 
 export interface MerchantHotelservice {
+  owner_id?: number;
   name: string;
   english_name: string;
   address: string;
+  city?: string;
   longitude?: string;
   latitude?: string;
   star: number;
@@ -47,6 +60,7 @@ export interface MerchantHotelservice {
   detail_images?: string[];
   open_date: string;
   tags?: string[];
+  facilities?: string[];
   rooms?: Room[];
 }
 
@@ -60,11 +74,7 @@ export type HotelsResponse = {
   msg?: string;
 };
 
-export type AuditBody = {
-  hotel_id: number;
-  status: HotelStatus;
-  reject_reason?: string;
-};
+export type AuditStatus = 1 | 2; // 1=通过, 2=不通过
 
 export type AuditResponse = {
   success: boolean;
@@ -80,12 +90,26 @@ export type HotelFilterBody = {
   page_size?: number;
 };
 
-export const getHotels = (): Promise<HotelsResponse> => {
-  return service.get("/api/admin/hotels/pending");
+export type HotelListFilter = {
+  hotelName?: string;
+  merchantName?: string;
+  status?: string;
+  city?: string;
 };
 
-export const auditHotel = (body: AuditBody): Promise<AuditResponse> => {
-  return service.post("/api/admin/audit", body);
+export const getHotels = (filter: HotelListFilter = {}): Promise<HotelsResponse> => {
+  const params = {
+    ...getUserParams(),
+    ...(filter.hotelName ? { hotelName: filter.hotelName } : {}),
+    ...(filter.merchantName ? { merchantName: filter.merchantName } : {}),
+    ...(filter.status ? { status: filter.status } : {}),
+    ...(filter.city ? { city: filter.city } : {}),
+  };
+  return service.get("/api/admin/hotels/pending", { params });
+};
+
+export const auditHotel = (hotelId: number, status: AuditStatus): Promise<AuditResponse> => {
+  return service.put(`/api/admin/hotels/${hotelId}/audit`, { status });
 };
 
 export interface MerchantHotelListResponse {
@@ -101,11 +125,16 @@ export interface MerchantHotelDetailResponse {
 }
 
 export const getMerchantHotels = (): Promise<MerchantHotelListResponse> => {
-  return service.get("/api/merchant/hotels");
+  return service.get("/api/merchant/hotels", { params: getUserParams() });
 };
 
-// 获取单个酒店详情
+// 获取单个酒店详情（商家）
 export const getMerchantHotelDetail = (id: number): Promise<MerchantHotelDetailResponse> => {
+  return service.get(`/api/merchant/hotels/${id}`);
+};
+
+// 管理员查看酒店完整详情（含房型）
+export const getAdminHotelDetail = (id: number): Promise<MerchantHotelDetailResponse> => {
   return service.get(`/api/merchant/hotels/${id}`);
 };
 

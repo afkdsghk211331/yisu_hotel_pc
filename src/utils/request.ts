@@ -7,8 +7,8 @@ const userBaseURL = "http://116.62.19.40:3001";
 const hotelBaseURL = "http://116.62.19.40:3005";
 
 // 本地测试地址
-// const userBaseURL = "http://localhost:3001";
-// const hotelBaseURL = "http://localhost:3005";
+// const userBaseURL = "http://localhost.com:3001";
+// const hotelBaseURL = "http://localhost.com:3005";
 
 // 创建拦截器配置函数
 const createInterceptors = (instance: ReturnType<typeof axios.create>) => {

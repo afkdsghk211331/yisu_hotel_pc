@@ -22,6 +22,7 @@ export const hotelSchema = z.object({
   cover_image: z.string().min(1, { message: "请上传封面图" }),
   detail_images: z.array(z.string()).optional().default([]),
   tags: z.array(z.string()).optional().default([]),
+  facilities: z.array(z.string()).optional().default([]),
   description: z.string().optional(),
   rooms: z.array(roomSchema).min(1, { message: "请至少添加一个房型" }).default([]),
 });

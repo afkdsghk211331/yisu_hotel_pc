@@ -5,7 +5,6 @@ import { zhCN } from "date-fns/locale";
 import { Calendar as CalendarIcon, UploadCloud, X, Hotel } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Dropzone, DropZoneArea, DropzoneTrigger, useDropzone } from "@/components/ui/dropzone";
 import {
@@ -25,10 +24,21 @@ import { toast } from "sonner";
 
 const PREDEFINED_TAGS = ["亲子", "豪华", "商务", "度假", "温泉", "海景"];
 
+const PREDEFINED_FACILITIES = [
+  "免费WiFi",
+  "免费停车",
+  "游泳池",
+  "健身房",
+  "餐厅",
+  "会议室",
+  "接送机服务",
+];
+
 export function HotelBasicInfoForm() {
   const form = useFormContext<HotelFormValues>();
 
   const currentTags = form.watch("tags") || [];
+  const currentFacilities = form.watch("facilities") || [];
   const coverImage = form.watch("cover_image");
   const detailImages = form.watch("detail_images") || [];
 
@@ -211,54 +221,54 @@ export function HotelBasicInfoForm() {
             </div>
 
             <div className="flex-1">
-              <FormField
-                control={form.control}
-                name="open_date"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel required className="text-gray-700">
-                      开业时间
-                    </FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "mt-0 w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground",
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? (
-                              format(new Date(field.value), "PPP", { locale: zhCN })
-                            ) : (
-                              <span>选择日期</span>
-                            )}
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          locale={zhCN}
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => {
-                            if (date) {
-                              field.onChange(format(date, "yyyy-MM-dd"));
-                            } else {
-                              field.onChange("");
-                            }
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormItem className="space-y-2">
+                <FormLabel required className="text-gray-700">
+                  开业时间
+                </FormLabel>
+                <FormField
+                  control={form.control}
+                  name="open_date"
+                  render={({ field }) => (
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "mt-0 w-full justify-start text-left font-normal cursor-default hover:bg-white",
+                        !field.value && "text-muted-foreground",
+                      )}
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value ? (
+                        format(new Date(field.value), "PPP", { locale: zhCN })
+                      ) : (
+                        <span>等待选择</span>
+                      )}
+                    </Button>
+                  )}
+                />
+              </FormItem>
             </div>
           </div>
+
+          {/* 日历：独立一行，占满左栏全宽 */}
+          <FormField
+            control={form.control}
+            name="open_date"
+            render={({ field }) => (
+              <FormItem>
+                <Calendar
+                  mode="single"
+                  locale={zhCN}
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    field.onChange(date ? format(date, "yyyy-MM-dd") : "");
+                  }}
+                  className="w-full rounded-md border"
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         {/* 中间：标签及简介 */}
@@ -306,6 +316,44 @@ export function HotelBasicInfoForm() {
 
           <FormField
             control={form.control}
+            name="facilities"
+            render={() => (
+              <FormItem>
+                <FormLabel>酒店设施</FormLabel>
+                <FormControl>
+                  <div className="grid grid-cols-2 gap-2 pt-1 pb-1">
+                    {PREDEFINED_FACILITIES.map((facility) => {
+                      const isSelected = currentFacilities.includes(facility);
+                      return (
+                        <Badge
+                          key={facility}
+                          variant={isSelected ? "default" : "outline"}
+                          className={cn(
+                            "flex w-full cursor-pointer items-center justify-center px-3 py-2 text-xs font-normal transition-all hover:opacity-80 active:scale-95",
+                            isSelected
+                              ? "bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-sm"
+                              : "border-gray-200 bg-white text-gray-600 hover:bg-gray-100",
+                          )}
+                          onClick={() => {
+                            const next = isSelected
+                              ? currentFacilities.filter((f) => f !== facility)
+                              : [...currentFacilities, facility];
+                            form.setValue("facilities", next, { shouldValidate: true });
+                          }}
+                        >
+                          {facility}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem className="flex min-h-0 flex-1 flex-col">
@@ -337,7 +385,7 @@ export function HotelBasicInfoForm() {
                 <FormControl>
                   <div>
                     {coverImage ? (
-                      <div className="group relative h-32 w-full overflow-hidden rounded-md border-2 border-dashed transition-colors">
+                      <div className="group relative h-48 w-full overflow-hidden rounded-md border-2 border-dashed transition-colors">
                         <img src={coverImage} alt="cover" className="h-full w-full object-cover" />
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                           <Button
@@ -352,7 +400,7 @@ export function HotelBasicInfoForm() {
                       </div>
                     ) : (
                       <Dropzone {...coverDropzone}>
-                        <DropZoneArea className="relative flex h-32 w-full flex-col gap-2 transition-colors hover:bg-gray-50">
+                        <DropZoneArea className="relative flex h-48 w-full flex-col gap-2 transition-colors hover:bg-gray-50">
                           <DropzoneTrigger
                             className="absolute inset-0 z-10 m-0! h-full w-full cursor-pointer rounded-none border-none bg-transparent p-0! opacity-0 hover:bg-transparent"
                             aria-label="点击上传封面"
