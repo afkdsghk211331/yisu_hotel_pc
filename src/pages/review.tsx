@@ -68,11 +68,11 @@ export function HotelReviewPage() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ 统一：这些条件先在前端设置，点【搜索】才发请求生效
+  // ✅ 用 "" 表示“未选择/全部”，Select 会显示 placeholder
   const [searchName, setSearchName] = useState("");
   const [searchOwnerName, setSearchOwnerName] = useState("");
-  const [filterStatus, setFilterStatus] = useState<HotelStatus | undefined>(undefined);
-  const [filterCity, setFilterCity] = useState<string | undefined>(undefined);
+  const [filterStatus, setFilterStatus] = useState<HotelStatus | "">("");
+  const [filterCity, setFilterCity] = useState<string | "">("");
 
   // 分页（后端支持）
   const [page, setPage] = useState(1);
@@ -98,28 +98,28 @@ export function HotelReviewPage() {
     try {
       const res = await getHotels(body ?? {});
       if (!res.success) throw new Error(res.msg || "获取失败");
-      const list: Hotel[] = res.data;
-      setHotels(list);
+      setHotels(res.data as Hotel[]);
     } catch (e: unknown) {
-      toast.error("获取酒店列表失败", { description: e.message ?? "请稍后重试" });
+      const msg = e instanceof Error ? e.message : "请稍后重试";
+      toast.error("获取酒店列表失败", { description: msg });
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ 把 "" 转成 undefined，发给后端时不带该筛选条件
   const buildQueryBody = (override?: Partial<HotelFilterBody>): HotelFilterBody => {
     return {
       name: searchName.trim() ? searchName.trim() : undefined,
       owner_name: searchOwnerName.trim() ? searchOwnerName.trim() : undefined,
-      status: filterStatus,
-      city: filterCity, // ✅ 现在也走后端
+      status: filterStatus || undefined,
+      city: filterCity || undefined,
       page,
       page_size: pageSize,
       ...override,
     };
   };
 
-  // 首次加载：拉第一页
   useEffect(() => {
     const initBody: HotelFilterBody = { page: 1, page_size: pageSize };
     setCurrentQuery(initBody);
@@ -128,7 +128,6 @@ export function HotelReviewPage() {
   }, []);
 
   const handleSearch = async () => {
-    // ✅ 搜索：从第一页开始
     const body = buildQueryBody({ page: 1 });
     setPage(1);
     setCurrentQuery(body);
@@ -138,8 +137,8 @@ export function HotelReviewPage() {
   const handleReset = async () => {
     setSearchName("");
     setSearchOwnerName("");
-    setFilterStatus(undefined);
-    setFilterCity(undefined);
+    setFilterStatus(""); // ✅ 回到 placeholder：全部状态
+    setFilterCity(""); // ✅ 回到 placeholder：全部城市
     setPage(1);
 
     const body: HotelFilterBody = { page: 1, page_size: pageSize };
@@ -160,7 +159,8 @@ export function HotelReviewPage() {
       return true;
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "请稍后重试";
-      toast.error("获取酒店列表失败", { description: msg });
+      toast.error("操作失败", { description: msg });
+      return false;
     }
   };
 
@@ -187,7 +187,6 @@ export function HotelReviewPage() {
 
   const handleOffline = async () => {
     if (!selectedHotel) return;
-
     const ok = await doAudit(selectedHotel.id, "offline");
     if (ok) {
       toast.success("已下线", { description: `${selectedHotel.name} 已下线（软删除，可恢复）` });
@@ -198,7 +197,6 @@ export function HotelReviewPage() {
 
   const handleRestore = async () => {
     if (!selectedHotel) return;
-
     const ok = await doAudit(selectedHotel.id, "published");
     if (ok) {
       toast.success("已恢复上线", { description: `${selectedHotel.name} 已恢复上线` });
@@ -284,7 +282,7 @@ export function HotelReviewPage() {
               <Label>状态</Label>
               <Select
                 value={filterStatus}
-                onValueChange={(v) => setFilterStatus(v ? (v as HotelStatus) : undefined)}
+                onValueChange={(v) => setFilterStatus(v as HotelStatus | "")}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="全部状态" />
@@ -339,7 +337,6 @@ export function HotelReviewPage() {
                   <TableHead>酒店ID</TableHead>
                   <TableHead>酒店名称</TableHead>
                   <TableHead>城市</TableHead>
-                  <TableHead>商户名</TableHead>
                   <TableHead>状态</TableHead>
                   <TableHead className="text-right">操作</TableHead>
                 </TableRow>
@@ -367,7 +364,6 @@ export function HotelReviewPage() {
                       </TableCell>
 
                       <TableCell>{hotel.city ?? "-"}</TableCell>
-                      <TableCell>{hotel.owner_name ?? "-"}</TableCell>
 
                       <TableCell>
                         <Badge variant="outline" className={STATUS_MAP[hotel.status].color}>
