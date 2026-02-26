@@ -166,7 +166,7 @@ function HotelDetailDialog({
                   </div>
                   <div className="flex gap-2">
                     <span className="w-20 shrink-0 text-gray-500">商户名</span>
-                    <span className="font-medium text-gray-900">{hotel.owner_name || "-"}</span>
+                    <span className="font-medium text-gray-900">{hotel.merchant_name || "-"}</span>
                   </div>
                   <div className="flex gap-2">
                     <span className="w-20 shrink-0 text-gray-500">开业时间</span>
@@ -537,7 +537,7 @@ export function HotelReviewPage() {
                         </button>
                       </TableCell>
                       <TableCell>{hotel.city ?? "-"}</TableCell>
-                      <TableCell>{hotel.owner_name ?? "-"}</TableCell>
+                      <TableCell>{hotel.merchant_name ?? "-"}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className={STATUS_MAP[hotel.status].color}>
                           {STATUS_MAP[hotel.status].label}

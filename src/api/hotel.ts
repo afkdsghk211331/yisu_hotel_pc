@@ -10,6 +10,12 @@ function getUserParams() {
   };
 }
 
+// 仅读取 owner_id（用于单条资源的身份校验）
+function getOwnerParams() {
+  const { userInfo } = useUserStore.getState();
+  return { owner_id: userInfo?.id ?? "" };
+}
+
 export type HotelStatus = "pending" | "published" | "rejected" | "offline";
 
 export type Room = {
@@ -34,7 +40,7 @@ export type Hotel = {
   star: number; // 1-5
   price: number; // decimal(10,2)  这里取各个房型中价格的最低价格
   status: "published" | "pending" | "offline" | "rejected"; // published=已发布, pending=审核中,offline=已下线，rejected=被驳回
-  owner_name?: string;
+  merchant_name?: string;
   score: number;
   description: string;
   cover_image: string;
@@ -130,12 +136,12 @@ export const getMerchantHotels = (): Promise<MerchantHotelListResponse> => {
 
 // 获取单个酒店详情（商家）
 export const getMerchantHotelDetail = (id: number): Promise<MerchantHotelDetailResponse> => {
-  return service.get(`/api/merchant/hotels/${id}`);
+  return service.get(`/api/merchant/hotels/${id}`, { params: getOwnerParams() });
 };
 
 // 管理员查看酒店完整详情（含房型）
 export const getAdminHotelDetail = (id: number): Promise<MerchantHotelDetailResponse> => {
-  return service.get(`/api/merchant/hotels/${id}`);
+  return service.get(`/api/merchant/hotels/${id}`, { params: getOwnerParams() });
 };
 
 // 新增酒店
@@ -155,5 +161,5 @@ export const updateMerchantHotel = (
 
 // 删除酒店
 export const deleteMerchantHotel = (id: number): Promise<{ success: boolean; msg: string }> => {
-  return service.delete(`/api/merchant/hotels/${id}`);
+  return service.delete(`/api/merchant/hotels/${id}`, { params: getOwnerParams() });
 };
